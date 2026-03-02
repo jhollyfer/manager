@@ -1,0 +1,116 @@
+* {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+
+:root {
+  --purple: #5b4fe8;
+  --purple-light: #7c72f0;
+  --purple-dark: #3d35c2;
+  --pink: #e8185a;
+  --bg-hero: #f0effe;
+}
+
+/* Card hover */
+.produto-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.produto-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(91, 79, 232, 0.15);
+}
+
+/* Toggle button group */
+.toggle-btn {
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border-radius: 8px;
+  transition: all 0.15s;
+  cursor: pointer;
+  border: none;
+}
+.toggle-btn.active {
+  background: var(--purple);
+  color: white;
+}
+.toggle-btn.inactive {
+  background: transparent;
+  color: #888;
+}
+.toggle-btn.inactive:hover {
+  color: var(--purple);
+}
+
+/* Input focus */
+.field-input:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: 0 0 0 3px rgba(91, 79, 232, 0.12);
+}
+
+/* Toast */
+#toast {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+#toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+#toast.hidden {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+
+/* Search bar glass */
+.search-bar {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(91, 79, 232, 0.1);
+}
+
+/* Section label */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--pink);
+  text-transform: uppercase;
+}
+
+/* Pin icon */
+.pin-icon {
+  color: var(--pink);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f0effe;
+}
+::-webkit-scrollbar-thumb {
+  background: #c4bffa;
+  border-radius: 99px;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: fadeInUp 0.4s ease both;
+}

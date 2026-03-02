@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gerenciador de Produtos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="hidden fixed top-6 right-6 z-50 px-5 py-3 rounded-xl shadow-xl text-white text-sm font-semibold"
+    ></div>
+
+    <!-- ===== HERO ===== -->
+    <section
+      class="relative overflow-hidden"
+      style="background: var(--bg-hero)"
+    >
+      <div class="relative z-10 max-w-4xl mx-auto px-6 py-16 text-center">
+        <p class="section-label mb-4">GERENCIADOR DE PRODUTOS</p>
+        <h1
+          class="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight mb-10"
+        >
+          Gerencie seus
+          <span style="color: var(--purple)">melhores produtos</span><br />
+          de forma simples
+        </h1>
+
+        <!-- Search / Delete bar -->
+        <div
+          class="search-bar mx-auto max-w-2xl p-4 flex flex-col sm:flex-row gap-3 items-center"
+        >
+          <div
+            class="flex items-center flex-1 gap-2 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5"
+          >
+            <input
+              id="searchId"
+              type="text"
+              placeholder="Pesquise por nome ou descrição"
+              class="bg-transparent text-sm w-full focus:outline-none text-gray-700 placeholder-gray-400"
+            />
+          </div>
+          <div class="flex gap-2">
+            <button
+              onclick="buscarProdutos()"
+              class="text-white text-sm font-bold px-6 py-2.5 rounded-lg transition-all active:scale-95"
+              style="background: var(--purple)"
+            >
+              BUSCAR
+            </button>
+            <button
+              onclick="carregarProdutos()"
+              class="text-white text-sm font-bold px-5 py-2.5 rounded-lg transition-all active:scale-95"
+              style="background: var(--pink)"
+            >
+              TODOS
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SEARCH RESULT ===== -->
+    <div
+      id="searchResult"
+      class="hidden max-w-4xl mx-auto px-6 mt-6 animate-in"
+    >
+      <div class="bg-white rounded-2xl border border-purple-100 shadow-sm p-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-2">
+            <span
+              class="w-2 h-2 rounded-full"
+              style="background: var(--purple)"
+            ></span>
+            <h3 class="font-bold text-gray-800">Produto encontrado</h3>
+          </div>
+          <button
+            onclick="preencherFormulario()"
+            class="text-sm font-semibold px-4 py-1.5 rounded-lg border transition"
+            style="color: var(--purple); border-color: var(--purple)"
+          >
+            ✏️ Editar produto
+          </button>
+        </div>
+        <div
+          id="searchResultContent"
+          class="text-sm text-gray-600 space-y-1.5 pl-4"
+        ></div>
+      </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="max-w-4xl mx-auto px-6 py-10 space-y-10">
+      <!-- Toggle LISTA / FORMULÁRIO -->
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-800">Produtos</h2>
+        <div class="flex bg-white rounded-xl border border-gray-200 p-1 gap-1">
+          <button
+            id="tabLista"
+            class="toggle-btn active"
+            onclick="setTab('lista')"
+          >
+            LISTA
+          </button>
+          <button
+            id="tabForm"
+            class="toggle-btn inactive"
+            onclick="setTab('form')"
+          >
+            CADASTRAR
+          </button>
+        </div>
+      </div>
+
+      <!-- Lista de produtos (placeholder visual) -->
+      <div id="painelLista">
+        <div
+          id="listaGrid"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+        ></div>
+        <div id="listaVazia" class="text-center py-16 text-gray-400">
+          <div class="text-5xl mb-4">📦</div>
+          <p class="font-medium">Nenhum produto carregado.</p>
+          <p class="text-sm mt-1">Use a busca acima ou cadastre um produto.</p>
+        </div>
+      </div>
+
+      <!-- Formulário Criar / Atualizar -->
+      <div id="painelForm" class="hidden">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 id="formTitle" class="text-xl font-bold text-gray-800">
+              Cadastrar Produto
+            </h2>
+            <button
+              id="btnCancelEdit"
+              onclick="cancelarEdicao()"
+              class="hidden text-sm font-semibold text-gray-400 hover:text-gray-700 transition"
+            >
+              ✕ Cancelar edição
+            </button>
+          </div>
+
+          <form
+            id="productForm"
+            onsubmit="handleSubmit(event)"
+            class="space-y-5"
+          >
+            <input id="editId" type="hidden" />
+
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
+                >Nome do Produto</label
+              >
+              <input
+                id="nome"
+                type="text"
+                required
+                placeholder="Ex: Camiseta Estampada"
+                class="field-input w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 transition"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
+                >Preço (R$)</label
+              >
+              <input
+                id="preco"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                placeholder="0,00"
+                class="field-input w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 transition"
+              />
+            </div>
+
+            <div>
+              <label
+                class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"
+                >Descrição</label
+              >
+              <textarea
+                id="descricao"
+                rows="3"
+                required
+                placeholder="Descreva o produto..."
+                class="field-input w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 transition resize-none"
+              ></textarea>
+            </div>
+
+            <button
+              id="btnSubmit"
+              type="submit"
+              class="w-full text-white font-bold text-sm py-3.5 rounded-xl transition active:scale-95"
+              style="background: var(--purple)"
+            >
+              Cadastrar Produto
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
